@@ -136,7 +136,7 @@ public class LeastSlack {
             System.out.println("Job " + j.getId() + " begon op " + j.getBeginTime() + " en eindigde op " + j.getEndTime() + ".");
         }
 
-        System.out.println("Done it in " + (end - start) + "ms!");
+        System.out.println("Done in " + (end - start) + "ms!");
 
         fileScanner.close();
     }
