@@ -68,15 +68,6 @@ public class LeastSlack {
             if (!wasFirstLine) currentJob++;
         }
 
-//        System.out.println("De JobShop bevat " + shop.getJobs().size() + " jobs!");
-//        for (Job j : shop.getJobs()) {
-//            System.out.println("Job " + j.getId() + " bevat " + j.getTasks().size() + " machines!");
-//            System.out.println("En heeft een totale lengte van " + j.calculateTotalDuration());
-//        }
-
-        //TODO Tijd erin verwerken. In plaats van altijd op 0 zetten, checken wat het verschil tussen de huidige tijd en eindtijd is, en die opslaan als verschil.
-        //TODO Begin en eindtijd opslaan in de job
-
         long start = System.currentTimeMillis();
 
         int timeSince = 0;
@@ -88,7 +79,6 @@ public class LeastSlack {
                 System.out.println("Job " + j.getId() + " (totale duration " + j.calculateTotalDuration() + "):");
                 for (Task t : j.getTasksSortedByMachine(true)) {
                     System.out.println("Task " + t.getMachineID() + " heeft een duration van " + t.getDuration() + " en een slack van " + t.getSlack() + ".");
-                    System.out.println("De time left is " + t.getTimeLeft());
                 }
             }
 
@@ -115,9 +105,11 @@ public class LeastSlack {
 
                 runningTask.setRunning(true);
 
+                runningJob.setBeginTime(timeSince);
+
                 System.out.println("We beginnen job " + runningJob.getId() + " en daarbinnen task " + runningTask.getMachineID() + "!");
 
-                runningTask.setTimeLeft(0);
+                runningTask.setDone(true);
 
                 System.out.println("En die is afgelopen! Volgende taak bepalen...");
             }
@@ -132,9 +124,17 @@ public class LeastSlack {
             System.out.println("------END------");
 
             System.out.println("Time: " + timeSince);
+
+            for (Job j : shop.getJobs()) {
+                if (j.getEndTime() == 0 && j.hasAllTasksDone()) j.setEndTime(timeSince);
+            }
         }
 
         long end = System.currentTimeMillis();
+
+        for (Job j : shop.getJobs()) {
+            System.out.println("Job " + j.getId() + " begon op " + j.getBeginTime() + " en eindigde op " + j.getEndTime() + ".");
+        }
 
         System.out.println("Done it in " + (end - start) + "ms!");
 

@@ -15,7 +15,7 @@ public class JobShop {
      * @return true/false
      */
     public boolean isAllJobsDone() {
-        return jobs.stream().noneMatch(j -> j.getTasks().stream().anyMatch(t -> t.getTimeLeft() != 0));
+        return jobs.stream().noneMatch(j -> j.getTasks().stream().anyMatch(t -> !t.isDone()));
     }
 
     /**
