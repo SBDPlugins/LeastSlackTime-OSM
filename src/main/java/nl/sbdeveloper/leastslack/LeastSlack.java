@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LeastSlack {
-    private static final Pattern pattern = Pattern.compile("(\\d+)( |\\t+)(\\d+)");
+    private static final Pattern pattern = Pattern.compile("(\\d+)[ \\t]+(\\d+)");
 
     public static void main(String[] args) throws IOException {
         if (args.length < 1) {
@@ -48,12 +48,12 @@ public class LeastSlack {
             while (matcher.find()) {
                 if (jobs == 0 || machines == 0) {
                     jobs = Integer.parseInt(matcher.group(1));
-                    machines = Integer.parseInt(matcher.group(3));
+                    machines = Integer.parseInt(matcher.group(2));
                     wasFirstLine = true;
                     break;
                 } else {
                     int id = Integer.parseInt(matcher.group(1));
-                    int duration = Integer.parseInt(matcher.group(3));
+                    int duration = Integer.parseInt(matcher.group(2));
 
                     if (id < lowestMachine) lowestMachine = id;
 
