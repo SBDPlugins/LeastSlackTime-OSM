@@ -68,15 +68,6 @@ public class Job {
         return tasks.stream().filter(t -> t.getTimeLeft() > 0).map(Task::getDuration).mapToInt(Integer::intValue).sum();
     }
 
-    /**
-     * Heeft deze job een actieve taak?
-     *
-     * @return true/false
-     */
-    public boolean hasRunningTask() {
-        return tasks.stream().anyMatch(Task::isRunning);
-    }
-
     public boolean hasAllTasksDone() {
         return tasks.stream().allMatch(t -> t.getTimeLeft() <= 0);
     }

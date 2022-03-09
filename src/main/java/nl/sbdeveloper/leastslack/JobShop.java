@@ -20,22 +20,6 @@ public class JobShop {
     }
 
     /**
-     * Check of alle jobs zijn afgehandeld.
-     *
-     * @return true/false
-     */
-    public boolean isAllJobsDoneOnMachine(int machineID) {
-        for (Job j : jobs) {
-            for (Task t : j.getTasks()) {
-                if (t.getMachineID() == machineID && t.getTimeLeft() != t.getDuration() && t.getTimeLeft() > 0) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
      * Haal de jobs op, gesorteerd op lengte (lang naar kort).
      *
      * @return Een lijst met de jobs.
@@ -59,15 +43,6 @@ public class JobShop {
             map.put(j, foundTask);
         }
         return map.entrySet().stream().sorted(Comparator.comparing(e -> e.getValue().getSlack())).collect(Collectors.toList());
-    }
-
-    public Task getRunningTask(int machineID) {
-        for (Job j : jobs) {
-            for (Task t : j.getTasks()) {
-                if (t.getMachineID() == machineID && t.getDuration() != t.getTimeLeft() && t.getTimeLeft() > 0) return t;
-            }
-        }
-        return null;
     }
 
     /**
