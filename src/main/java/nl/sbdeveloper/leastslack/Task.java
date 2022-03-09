@@ -5,13 +5,14 @@ import java.util.Objects;
 public class Task {
     private final int machineID;
     private final int duration;
-    private boolean done;
+    private int timeLeft;
     private int slack;
     private boolean running;
 
     public Task(int machineID, int duration) {
         this.machineID = machineID;
         this.duration = duration;
+        this.timeLeft = duration;
     }
 
     public int getMachineID() {
@@ -22,12 +23,12 @@ public class Task {
         return duration;
     }
 
-    public boolean isDone() {
-        return done;
+    public int getTimeLeft() {
+        return timeLeft;
     }
 
-    public void setDone(boolean done) {
-        this.done = done;
+    public void setTimeLeft(int timeLeft) {
+        this.timeLeft = timeLeft;
     }
 
     public int getSlack() {
@@ -51,11 +52,11 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return machineID == task.machineID && duration == task.duration && done == task.done && slack == task.slack && running == task.running;
+        return machineID == task.machineID && duration == task.duration && timeLeft == task.timeLeft && slack == task.slack && running == task.running;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(machineID, duration, done, slack, running);
+        return Objects.hash(machineID, duration, timeLeft, slack, running);
     }
 }

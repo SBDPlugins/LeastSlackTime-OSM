@@ -68,76 +68,105 @@ public class LeastSlack {
             if (!wasFirstLine) currentJob++;
         }
 
-        long start = System.currentTimeMillis();
+        fileScanner.close();
 
-        int timeSince = 0;
+        //////////////////////////////////
 
-        while (!shop.isAllJobsDone()) {
-            System.out.println("------START------");
-            shop.calculateSlack();
-            for (Job j : shop.getJobsSorted()) {
-                System.out.println("Job " + j.getId() + " (totale duration " + j.calculateTotalDuration() + "):");
-                for (Task t : j.getTasksSortedByMachine(true)) {
-                    System.out.println("Task " + t.getMachineID() + " heeft een duration van " + t.getDuration() + " en een slack van " + t.getSlack() + ".");
-                }
-            }
+        Map<Integer, Integer> machineBusyUntil = new HashMap<>(); //key = machine ID, value = busy end time
 
-            List<Task> tasks = new ArrayList<>(); //De taken die in deze loop worden uitgevoerd.
-
-            for (int machineID = lowestMachine; machineID <= machines; machineID++) {
-                Map<Job, Task> map = shop.getTasksSortedBySlack(machineID);
-                Optional<Map.Entry<Job, Task>> toRunOpt = map.entrySet().stream().min(Comparator.comparing(t -> t.getValue().getSlack())); //Haalt de taak met de kleinste slack op.
-                if (toRunOpt.isEmpty()) continue;
-
-                Map.Entry<Job, Task> toRun = toRunOpt.get(); //De job en bijbehorende taak met de kleinste slack op deze machine.
-
-                Job runningJob = toRun.getKey();
-
-                int previousMachine = machineID - 1;
-                if (previousMachine >= lowestMachine) {
-                    Task task = runningJob.getTask(previousMachine);
-                    if (task != null) continue; //The previous job is not done yet.
-                }
-
-                Task runningTask = toRun.getValue();
-
-                tasks.add(runningTask);
-
-                runningTask.setRunning(true);
-
-                runningJob.setBeginTime(timeSince);
-
-                System.out.println("We beginnen job " + runningJob.getId() + " en daarbinnen task " + runningTask.getMachineID() + "!");
-
-                runningTask.setDone(true);
-
-                System.out.println("En die is afgelopen! Volgende taak bepalen...");
-            }
-
-            Optional<Task> biggestTask = tasks.stream().max(Comparator.comparing(Task::getDuration));
-            if (biggestTask.isPresent()) {
-                timeSince += biggestTask.get().getDuration();
-            }
-
-            tasks.forEach(t -> t.setRunning(false));
-
-            System.out.println("------END------");
-
-            System.out.println("Time: " + timeSince);
-
-            for (Job j : shop.getJobs()) {
-                if (j.getEndTime() == 0 && j.hasAllTasksDone()) j.setEndTime(timeSince);
-            }
+        //Fill with default values, all the machines -> 0
+        for (int machineID = lowestMachine; machineID < machines; machineID++) {
+            machineBusyUntil.put(machineID, 0);
         }
 
-        long end = System.currentTimeMillis();
+        int time = 0;
+        while (!shop.isAllJobsDone()) {
+            System.out.println("------START------");
+
+            List<Integer> machinesDone = new ArrayList<>();
+            List<Integer> machinesNotDone = new ArrayList<>();
+            for (Map.Entry<Integer, Integer> entry : machineBusyUntil.entrySet()) {
+                if (time < entry.getValue()) {
+                    machinesNotDone.add(entry.getKey());
+                    continue; //Machine is still busy!!!
+                }
+                if (!shop.isAllJobsDoneOnMachine(entry.getKey())) {
+                    machinesNotDone.add(entry.getKey());
+                    continue; //Machine is still busy (double check)!!!
+                }
+
+                machinesDone.add(entry.getKey());
+            }
+
+            if (machinesDone.size() > 0) {
+                System.out.println("------CALCULATING SLACK------");
+                shop.calculateSlack();
+                for (Job j : shop.getJobsSorted()) {
+                    System.out.println("Job " + j.getId() + " (totale duration " + j.calculateTotalDuration() + "):");
+                    for (Task t : j.getTasksSortedByMachine(true)) {
+                        System.out.println("Voor machine " + t.getMachineID() + " is een duration van " + t.getDuration() + " en een slack van " + t.getSlack() + ".");
+                    }
+                }
+
+                List<Task> tasks = new ArrayList<>(); //De taken die in deze loop worden uitgevoerd.
+
+                for (int machineID : machinesDone) {
+                    List<Map.Entry<Job, Task>> map = shop.getTasksSortedBySlack(machineID);
+                    if (map.isEmpty()) continue;
+
+                    for (Map.Entry<Job, Task> toRun : map) {
+                        int previousMachine = machineID - 1;
+                        if (previousMachine >= lowestMachine) {
+                            Task task = toRun.getKey().getTask(previousMachine);
+                            if (task != null) continue; //The previous job is not done yet.
+                        }
+
+                        tasks.add(toRun.getValue());
+
+                        toRun.getValue().setRunning(true);
+
+                        toRun.getKey().setBeginTime(time);
+
+                        System.out.println("Job " + toRun.getKey().getId() + " wordt op machine " + toRun.getValue().getMachineID() + " uitgevoerd!");
+                        break;
+                    }
+                }
+
+                Optional<Task> smallestTask = tasks.stream().min(Comparator.comparing(Task::getDuration));
+                if (smallestTask.isPresent()) {
+                    int smallestDuration = smallestTask.get().getDuration();
+
+                    for (Task t : tasks) {
+                        t.setTimeLeft(t.getTimeLeft() - smallestDuration);
+                        System.out.println("Machine is nog " + t.getTimeLeft() + " bezig.");
+                    }
+
+                    time += smallestDuration;
+                }
+
+                tasks.forEach(t -> t.setRunning(false));
+
+                System.out.println("------END------");
+
+                System.out.println("Time: " + time);
+
+                for (Job j : shop.getJobs()) {
+                    if (j.getEndTime() == 0 && j.hasAllTasksDone()) j.setEndTime(time);
+                }
+            }
+
+            for (int machineID : machinesNotDone) {
+                Task t = shop.getRunningTask(machineID);
+                if (t == null) continue;
+
+                t.setTimeLeft(t.getTimeLeft() - 1);
+
+                System.out.println("Machine is nog " + t.getTimeLeft() + " bezig.");
+            }
+        }
 
         for (Job j : shop.getJobs()) {
             System.out.println("Job " + j.getId() + " begon op " + j.getBeginTime() + " en eindigde op " + j.getEndTime() + ".");
         }
-
-        System.out.println("Done in " + (end - start) + "ms!");
-
-        fileScanner.close();
     }
 }

@@ -48,7 +48,7 @@ public class Job {
      * @return De taak die erbij hoort.
      */
     public Task getTask(int machineID) {
-        return tasks.stream().filter(t -> t.getMachineID() == machineID && !t.isDone()).findAny().orElse(null);
+        return tasks.stream().filter(t -> t.getMachineID() == machineID && t.getTimeLeft() > 0).findAny().orElse(null);
     }
 
     /**
@@ -57,7 +57,7 @@ public class Job {
      * @return De lijst van taken.
      */
     public List<Task> getTasksSortedByMachine(boolean reversed) {
-        return reversed ? tasks.stream().filter(t -> !t.isDone()).sorted(Comparator.comparing(Task::getMachineID).reversed()).toList() : tasks.stream().sorted(Comparator.comparing(Task::getMachineID)).toList();
+        return reversed ? tasks.stream().filter(t -> t.getTimeLeft() > 0).sorted(Comparator.comparing(Task::getMachineID).reversed()).toList() : tasks.stream().sorted(Comparator.comparing(Task::getMachineID)).toList();
     }
 
     /**
@@ -65,7 +65,7 @@ public class Job {
      * @return De totale duration.
      */
     public int calculateTotalDuration() {
-        return tasks.stream().filter(t -> !t.isDone()).map(Task::getDuration).mapToInt(Integer::intValue).sum();
+        return tasks.stream().filter(t -> t.getTimeLeft() > 0).map(Task::getDuration).mapToInt(Integer::intValue).sum();
     }
 
     /**
@@ -78,7 +78,7 @@ public class Job {
     }
 
     public boolean hasAllTasksDone() {
-        return tasks.stream().allMatch(Task::isDone);
+        return tasks.stream().allMatch(t -> t.getTimeLeft() <= 0);
     }
 
     /**
@@ -89,7 +89,7 @@ public class Job {
     public void calculateSlack(int longestDuration) {
         int counter = longestDuration;
         for (Task t : getTasksSortedByMachine(true)) {
-            if (t.isDone()) continue; //Uitgevoerde taak, negeren.
+            if (t.getTimeLeft() <= 0) continue; //Uitgevoerde taak, negeren.
             counter -= t.getDuration();
             t.setSlack(counter);
         }

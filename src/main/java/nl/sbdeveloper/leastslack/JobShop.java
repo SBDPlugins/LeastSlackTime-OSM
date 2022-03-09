@@ -1,6 +1,7 @@
 package nl.sbdeveloper.leastslack;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JobShop {
     private final List<Job> jobs = new ArrayList<>();
@@ -15,7 +16,23 @@ public class JobShop {
      * @return true/false
      */
     public boolean isAllJobsDone() {
-        return jobs.stream().noneMatch(j -> j.getTasks().stream().anyMatch(t -> !t.isDone()));
+        return jobs.stream().noneMatch(j -> j.getTasks().stream().anyMatch(t -> t.getTimeLeft() > 0));
+    }
+
+    /**
+     * Check of alle jobs zijn afgehandeld.
+     *
+     * @return true/false
+     */
+    public boolean isAllJobsDoneOnMachine(int machineID) {
+        for (Job j : jobs) {
+            for (Task t : j.getTasks()) {
+                if (t.getMachineID() == machineID && t.getTimeLeft() != t.getDuration() && t.getTimeLeft() > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -33,15 +50,24 @@ public class JobShop {
      * @param machineID De ID van de machine om op te zoeken.
      * @return Een map met als key de Job en als value de Task die hoort bij de machine.
      */
-    public Map<Job, Task> getTasksSortedBySlack(int machineID) {
+    public List<Map.Entry<Job, Task>> getTasksSortedBySlack(int machineID) {
         Map<Job, Task> map = new HashMap<>();
         for (Job j : jobs) {
-            if (j.hasRunningTask()) continue;
+            //if (j.hasRunningTask()) continue;
             Task foundTask = j.getTask(machineID);
             if (foundTask == null) continue;
             map.put(j, foundTask);
         }
-        return map;
+        return map.entrySet().stream().sorted(Comparator.comparing(e -> e.getValue().getSlack())).collect(Collectors.toList());
+    }
+
+    public Task getRunningTask(int machineID) {
+        for (Job j : jobs) {
+            for (Task t : j.getTasks()) {
+                if (t.getMachineID() == machineID && t.getDuration() != t.getTimeLeft() && t.getTimeLeft() > 0) return t;
+            }
+        }
+        return null;
     }
 
     /**
