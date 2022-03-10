@@ -10,6 +10,7 @@ public class Job {
     private boolean hasBeginTimeSet = false;
     private int beginTime;
     private int endTime;
+    private int slack;
 
     public Job(int id) {
         this.id = id;
@@ -41,6 +42,14 @@ public class Job {
         this.endTime = endTime;
     }
 
+    public int getSlack() {
+        return slack;
+    }
+
+    public void setSlack(int slack) {
+        this.slack = slack;
+    }
+
     /**
      * Haalt een actieve taak op binnen deze job die hoort bij de meegegeven machine.
      *
@@ -48,7 +57,7 @@ public class Job {
      * @return De taak die erbij hoort.
      */
     public Task getTask(int machineID) {
-        return tasks.stream().filter(t -> t.getMachineID() == machineID && t.getTimeLeft() > 0).findAny().orElse(null);
+        return tasks.stream().filter(t -> t.getMachineID() == machineID && !t.isDone()).findAny().orElse(null);
     }
 
     /**
@@ -57,32 +66,33 @@ public class Job {
      * @return De lijst van taken.
      */
     public List<Task> getTasksSortedByMachine(boolean reversed) {
-        return reversed ? tasks.stream().filter(t -> t.getTimeLeft() > 0).sorted(Comparator.comparing(Task::getMachineID).reversed()).toList() : tasks.stream().sorted(Comparator.comparing(Task::getMachineID)).toList();
+        return reversed ? tasks.stream().filter(t -> !t.isDone()).sorted(Comparator.comparing(Task::getMachineID).reversed()).toList() : tasks.stream().sorted(Comparator.comparing(Task::getMachineID)).toList();
     }
 
-    /**
-     * Bereken de totale duration van alle actieve taken in deze job.
-     * @return De totale duration.
-     */
     public int calculateTotalDuration() {
-        return tasks.stream().filter(t -> t.getTimeLeft() > 0).map(Task::getDuration).mapToInt(Integer::intValue).sum();
+        return tasks.stream().map(Task::getDuration).mapToInt(Integer::intValue).sum();
     }
 
     public boolean hasAllTasksDone() {
-        return tasks.stream().allMatch(t -> t.getTimeLeft() <= 0);
+        return tasks.stream().allMatch(Task::isDone);
     }
 
-    /**
-     * Bereken de slack op alle taken in deze job.
-     *
-     * @param longestDuration De lengte van de langste job binnen de shop.
-     */
-    public void calculateSlack(int longestDuration) {
+    public void calculateEarliestStart() {
+        int counter = 0;
+        for (Task t : getTasksSortedByMachine(false)) {
+            if (counter == 0 && t.getEarliestStart() != 0) counter = t.getEarliestStart();
+
+            t.setEarliestStart(counter);
+            counter += t.getDuration();
+        }
+    }
+
+    public void calculateLatestStart(int longestDuration) {
         int counter = longestDuration;
         for (Task t : getTasksSortedByMachine(true)) {
-            if (t.getTimeLeft() <= 0) continue; //Uitgevoerde taak, negeren.
+            if (t.isDone()) continue; //Uitgevoerde taak, negeren.
             counter -= t.getDuration();
-            t.setSlack(counter);
+            t.setLatestStart(counter);
         }
     }
 }

@@ -1,18 +1,16 @@
 package nl.sbdeveloper.leastslack;
 
-import java.util.Objects;
-
 public class Task {
     private final int machineID;
     private final int duration;
-    private int timeLeft;
-    private int slack;
-    private boolean running;
+    private int earliestStart = 0;
+    private int latestStart = 0;
+    //private boolean running = false;
+    private boolean done = false;
 
     public Task(int machineID, int duration) {
         this.machineID = machineID;
         this.duration = duration;
-        this.timeLeft = duration;
     }
 
     public int getMachineID() {
@@ -23,40 +21,35 @@ public class Task {
         return duration;
     }
 
-    public int getTimeLeft() {
-        return timeLeft;
+    public int getEarliestStart() {
+        return earliestStart;
     }
 
-    public void setTimeLeft(int timeLeft) {
-        this.timeLeft = timeLeft;
+    public void setEarliestStart(int earliestStart) {
+        this.earliestStart = earliestStart;
     }
 
-    public int getSlack() {
-        return slack;
+    public int getLatestStart() {
+        return latestStart;
     }
 
-    public void setSlack(int slack) {
-        this.slack = slack;
+    public void setLatestStart(int latestStart) {
+        this.latestStart = latestStart;
     }
 
-    public boolean isRunning() {
-        return running;
+//    public boolean isRunning() {
+//        return running;
+//    }
+//
+//    public void setRunning(boolean running) {
+//        this.running = running;
+//    }
+
+    public boolean isDone() {
+        return done;
     }
 
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return machineID == task.machineID && duration == task.duration && timeLeft == task.timeLeft && slack == task.slack && running == task.running;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(machineID, duration, timeLeft, slack, running);
+    public void setDone(boolean done) {
+        this.done = done;
     }
 }
