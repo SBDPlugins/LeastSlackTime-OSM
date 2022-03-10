@@ -87,6 +87,9 @@ public class LeastSlack {
             }
         }
 
+        //TODO Fix dat hij de earliest start update als een taak begint die langer duurt dan de earliest start van een taak op de machine
+        //TODO In het huidige voorbeeld start Job 1 op Machine 0 (ES van 40, tijd 40) en heeft Job 2 op Machine 0 een ES van 60. Machine 0 is bezet tot 80, wat betekent dat die van Machine 0 moet updaten naar 80.
+
         int time = 0;
         while (!shop.isAllJobsDone()) {
             System.out.println("------START------");
