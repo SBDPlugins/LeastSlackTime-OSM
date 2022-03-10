@@ -32,23 +32,6 @@ public class JobShop {
         return map.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSlack())).collect(Collectors.toList());
     }
 
-//    /**
-//     * Haal per job de taak op die hoort bij deze specifieke machine.
-//     *
-//     * @param machineID De ID van de machine om op te zoeken.
-//     * @return Een map met als key de Job en als value de Task die hoort bij de machine.
-//     */
-//    public List<Map.Entry<Job, Task>> getTasksSortedBySlack(int machineID) {
-//        Map<Job, Task> map = new HashMap<>();
-//        for (Job j : jobs) {
-//            //if (j.hasRunningTask()) continue;
-//            Task foundTask = j.getTask(machineID);
-//            if (foundTask == null) continue;
-//            map.put(j, foundTask);
-//        }
-//        return map.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSlack())).collect(Collectors.toList());
-//    }
-
     /**
      * Bereken de slack voor alle jobs (en taken) binnen de shop.
      */

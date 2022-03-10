@@ -5,7 +5,6 @@ public class Task {
     private final int duration;
     private int earliestStart = 0;
     private int latestStart = 0;
-    //private boolean running = false;
     private boolean done = false;
 
     public Task(int machineID, int duration) {
@@ -36,14 +35,6 @@ public class Task {
     public void setLatestStart(int latestStart) {
         this.latestStart = latestStart;
     }
-
-//    public boolean isRunning() {
-//        return running;
-//    }
-//
-//    public void setRunning(boolean running) {
-//        this.running = running;
-//    }
 
     public boolean isDone() {
         return done;

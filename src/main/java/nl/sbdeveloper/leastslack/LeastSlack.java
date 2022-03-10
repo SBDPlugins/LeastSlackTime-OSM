@@ -129,8 +129,7 @@ public class LeastSlack {
                 }
             }
 
-            if (smallestTaskDuration == Integer.MAX_VALUE) smallestTaskDuration = 1;
-
+            if (smallestTaskDuration == Integer.MAX_VALUE) smallestTaskDuration = 1; //Als er op dit tijdstip geen taken draaien, tellen we er 1 bij op tot we weer wat vinden.
             time += smallestTaskDuration;
 
             for (Job j : shop.getJobs()) {

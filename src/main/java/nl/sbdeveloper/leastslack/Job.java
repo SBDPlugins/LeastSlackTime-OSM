@@ -50,21 +50,6 @@ public class Job {
         this.slack = slack;
     }
 
-    /**
-     * Haalt een actieve taak op binnen deze job die hoort bij de meegegeven machine.
-     *
-     * @param machineID De ID van de machine.
-     * @return De taak die erbij hoort.
-     */
-    public Task getTask(int machineID) {
-        return tasks.stream().filter(t -> t.getMachineID() == machineID && !t.isDone()).findAny().orElse(null);
-    }
-
-    /**
-     * Haal de actieve taken op gesorteerd op de machine
-     * @param reversed Wil je hem van 1-3 of andersom?
-     * @return De lijst van taken.
-     */
     public List<Task> getTasksSortedByMachine(boolean reversed) {
         return reversed ? tasks.stream().filter(t -> !t.isDone()).sorted(Comparator.comparing(Task::getMachineID).reversed()).toList() : tasks.stream().sorted(Comparator.comparing(Task::getMachineID)).toList();
     }
