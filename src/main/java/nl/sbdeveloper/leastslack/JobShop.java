@@ -25,7 +25,7 @@ public class JobShop {
             for (Task t : j.getTasks()) {
                 if (t.isDone()) continue; //Deze taak is klaar!
 
-                if (t.getEarliestStart() == currentTime) map.put(j, t);
+                if (t.getEarliestStart() <= currentTime) map.put(j, t);
             }
         }
 
@@ -37,5 +37,15 @@ public class JobShop {
      */
     public void calculateSlack() {
         jobs.forEach(j -> j.getTasks().stream().max(Comparator.comparing(Task::getMachineID)).ifPresent(task -> j.setSlack(task.getLatestStart() - task.getEarliestStart())));
+    }
+
+    public List<Task> getTasks(int machineID) {
+        List<Task> tasks = new ArrayList<>();
+        for (Job j : jobs) {
+            for (Task t : j.getTasks()) {
+                if (t.getMachineID() == machineID) tasks.add(t);
+            }
+        }
+        return tasks;
     }
 }

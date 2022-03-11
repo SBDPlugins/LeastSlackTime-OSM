@@ -90,8 +90,13 @@ public class LeastSlack {
         //TODO Fix dat hij de earliest start update als een taak begint die langer duurt dan de earliest start van een taak op de machine
         //TODO In het huidige voorbeeld start Job 1 op Machine 0 (ES van 40, tijd 40) en heeft Job 2 op Machine 0 een ES van 60. Machine 0 is bezet tot 80, wat betekent dat die van Machine 0 moet updaten naar 80.
 
+//        int loop = 0;
+
         int time = 0;
+//        while (loop < 40) {
         while (!shop.isAllJobsDone()) {
+//            loop++;
+
             System.out.println("------START------");
 
             List<Job> conflictedJobs = new ArrayList<>();
@@ -143,7 +148,7 @@ public class LeastSlack {
         }
 
         for (Job j : shop.getJobs()) {
-            System.out.println("Job " + j.getId() + " begon op " + j.getBeginTime() + " en eindigde op " + j.getEndTime() + ".");
+            System.out.println(j.getId() + "\t" + j.getBeginTime() + "\t" + j.getEndTime());
         }
     }
 }
